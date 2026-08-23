@@ -1,12 +1,12 @@
-name: Release Prebuilt Libraries
+name: Create Release
 
 on:
-  workflow_dispatch:  # Manual trigger to update when LiteRT-LM releases new versions
+  workflow_dispatch:
     inputs:
       litert_version:
-        description: "LiteRT-LM version (e.g., v0.16.0)"
+        description: 'LiteRT version (e.g., v0.16.0)'
         required: true
-        default: "v0.16.0"
+        default: 'v0.16.0'
 
 permissions:
   contents: write
@@ -15,32 +15,27 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - name: Download and Extract
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download LiteRT-LM zip
         run: |
-          VERSION=${{ github.event.inputs.litert_version }}
-          wget https://github.com/google-ai-edge/LiteRT-LM/releases/download/${VERSION}/litert_lm_c_api-0.1.0.zip
+          wget https://github.com/google-ai-edge/LiteRT-LM/releases/download/${{ github.event.inputs.litert_version }}/litert_lm_c_api-0.1.0.zip
           unzip -q litert_lm_c_api-0.1.0.zip
 
-      - name: Debug - List extracted files
-        run: |
-          echo "Contents of current directory:"
-          ls -la
-          echo ""
-          echo "Searching for .so files:"
-          find . -name "*.so" -o -name "*.dylib" -o -name "*.dll" -o -name "*.h"
-    
-      - name: Create Release and Upload Assets
+      - name: Create release and upload files
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.event.inputs.litert_version }}
           files: |
-            litert_lm_c_api-0.1.0/include/conversation.h
-            litert_lm_c_api-0.1.0/include/engine.h
-            litert_lm_c_api-0.1.0/lib/linux_arm64/liblitert-lm.so
-            litert_lm_c_api-0.1.0/lib/linux_x86_64/liblitert-lm.so
-            litert_lm_c_api-0.1.0/lib/android_arm64/liblitert-lm.so
-            litert_lm_c_api-0.1.0/lib/android_x86_64/liblitert-lm.so
-            litert_lm_c_api-0.1.0/lib/macos_arm64/liblitert-lm.dylib
-            litert_lm_c_api-0.1.0/lib/windows_x86_64/litert-lm.dll
-            litert_lm_c_api-0.1.0/lib/windows_x86_64/litert-lm.lib
-          body: "Prebuilt libraries from LiteRT-LM ${{ github.event.inputs.litert_version }}"
+            include/conversation.h
+            include/engine.h
+            lib/linux_arm64/liblitert-lm.so
+            lib/linux_x86_64/liblitert-lm.so
+            lib/android_arm64/liblitert-lm.so
+            lib/android_x86_64/liblitert-lm.so
+            lib/macos_arm64/liblitert-lm.dylib
+            lib/windows_x86_64/litert-lm.dll
+            lib/windows_x86_64/litert-lm.lib
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
