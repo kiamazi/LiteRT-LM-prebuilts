@@ -50,9 +50,9 @@ jobs:
           ls -la *.so *.dll *.lib *.h
 
       - name: Debug - Verify files before upload
-        run: |
-          echo "=== Files to be uploaded ==="
-          find . -maxdepth 1 -type f \( -name "*.so" -o -name "*.dylib" -o -name "*.dll" -o -name "*.lib" -o -name "*.h" \) -exec ls -lh {} \;
+  run: |
+    echo "=== Files to be uploaded ==="
+    find . -maxdepth 1 -type f \( -name "*.so" -o -name "*.dylib" -o -name "*.dll" -o -name "*.lib" \) -exec ls -lh {} \;
 
       - name: Create release and upload files
         uses: softprops/action-gh-release@v1
