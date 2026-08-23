@@ -18,6 +18,14 @@ jobs:
           wget https://github.com/google-ai-edge/LiteRT-LM/releases/download/${VERSION}/litert_lm_c_api-0.1.0.zip
           unzip -q litert_lm_c_api-0.1.0.zip
 
+      - name: Debug - List extracted files
+        run: |
+          echo "Contents of current directory:"
+          ls -la
+          echo ""
+          echo "Searching for .so files:"
+          find . -name "*.so" -o -name "*.dylib" -o -name "*.dll" -o -name "*.h"
+    
       - name: Create Release and Upload Assets
         uses: softprops/action-gh-release@v1
         with:
