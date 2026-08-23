@@ -1,0 +1,35 @@
+name: Release Prebuilt Libraries
+
+on:
+  workflow_dispatch:  # Manual trigger to update when LiteRT-LM releases new versions
+    inputs:
+      litert_version:
+        description: "LiteRT-LM version (e.g., v0.16.0)"
+        required: true
+        default: "v0.16.0"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download and Extract
+        run: |
+          VERSION=${{ github.event.inputs.litert_version }}
+          wget https://github.com/google-ai-edge/LiteRT-LM/releases/download/${VERSION}/litert_lm_c_api-0.1.0.zip
+          unzip -q litert_lm_c_api-0.1.0.zip
+
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.inputs.litert_version }}
+          files: |
+            litert_lm_c_api-0.1.0/include/conversation.h
+            litert_lm_c_api-0.1.0/include/engine.h
+            litert_lm_c_api-0.1.0/lib/linux_arm64/liblitert-lm.so
+            litert_lm_c_api-0.1.0/lib/linux_x86_64/liblitert-lm.so
+            litert_lm_c_api-0.1.0/lib/android_arm64/liblitert-lm.so
+            litert_lm_c_api-0.1.0/lib/android_x86_64/liblitert-lm.so
+            litert_lm_c_api-0.1.0/lib/macos_arm64/liblitert-lm.dylib
+            litert_lm_c_api-0.1.0/lib/windows_x86_64/litert-lm.dll
+            litert_lm_c_api-0.1.0/lib/windows_x86_64/litert-lm.lib
+          body: "Prebuilt libraries from LiteRT-LM ${{ github.event.inputs.litert_version }}"
