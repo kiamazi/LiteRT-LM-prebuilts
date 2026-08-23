@@ -47,12 +47,15 @@ jobs:
           mv lib/windows_x86_64/lib/litert-lm.lib windows_x86_64_litert-lm.lib
           echo ""
           echo "=== Files after rename ==="
-          ls -la *.so *.dll *.lib *.h
+          ls -lh *.so *.dll *.lib 2>/dev/null || true
 
       - name: Debug - Verify files before upload
-  run: |
-    echo "=== Files to be uploaded ==="
-    find . -maxdepth 1 -type f \( -name "*.so" -o -name "*.dylib" -o -name "*.dll" -o -name "*.lib" \) -exec ls -lh {} \;
+        run: |
+          echo "=== Files to be uploaded ==="
+          find . -maxdepth 1 -type f \( -name "*.so" -o -name "*.dylib" -o -name "*.dll" -o -name "*.lib" \) -exec ls -lh {} \;
+          echo ""
+          echo "=== Headers to be uploaded ==="
+          find include -type f -name "*.h" -exec ls -lh {} \;
 
       - name: Create release and upload files
         uses: softprops/action-gh-release@v1
