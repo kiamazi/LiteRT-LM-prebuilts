@@ -23,6 +23,37 @@ jobs:
           wget https://github.com/google-ai-edge/LiteRT-LM/releases/download/${{ github.event.inputs.litert_version }}/litert_lm_c_api-0.1.0.zip
           unzip -q litert_lm_c_api-0.1.0.zip
 
+      - name: Debug - List extracted files
+        run: |
+          echo "=== Current directory contents ==="
+          ls -la
+          echo ""
+          echo "=== All extracted files ==="
+          find . -type f \( -name "*.so" -o -name "*.dylib" -o -name "*.dll" -o -name "*.lib" -o -name "*.h" \)
+          echo ""
+          echo "=== lib directory structure ==="
+          tree lib || find lib -type f
+
+      - name: Rename files for clarity
+        run: |
+          echo "=== Renaming .so files ==="
+          mv lib/linux_arm64/liblitert-lm.so linux_arm64_liblitert-lm.so
+          mv lib/linux_x86_64/liblitert-lm.so linux_x86_64_liblitert-lm.so
+          mv lib/android_arm64/liblitert-lm.so android_arm64_liblitert-lm.so
+          mv lib/android_x86_64/liblitert-lm.so android_x86_64_liblitert-lm.so
+          echo ""
+          echo "=== Renaming Windows files ==="
+          mv lib/windows_x86_64/bin/litert-lm.dll windows_x86_64_litert-lm.dll
+          mv lib/windows_x86_64/lib/litert-lm.lib windows_x86_64_litert-lm.lib
+          echo ""
+          echo "=== Files after rename ==="
+          ls -la *.so *.dll *.lib *.h
+
+      - name: Debug - Verify files before upload
+        run: |
+          echo "=== Files to be uploaded ==="
+          find . -maxdepth 1 -type f \( -name "*.so" -o -name "*.dylib" -o -name "*.dll" -o -name "*.lib" -o -name "*.h" \) -exec ls -lh {} \;
+
       - name: Create release and upload files
         uses: softprops/action-gh-release@v1
         with:
@@ -30,12 +61,12 @@ jobs:
           files: |
             include/conversation.h
             include/engine.h
-            lib/linux_arm64/liblitert-lm.so
-            lib/linux_x86_64/liblitert-lm.so
-            lib/android_arm64/liblitert-lm.so
-            lib/android_x86_64/liblitert-lm.so
+            linux_arm64_liblitert-lm.so
+            linux_x86_64_liblitert-lm.so
+            android_arm64_liblitert-lm.so
+            android_x86_64_liblitert-lm.so
             lib/macos_arm64/liblitert-lm.dylib
-            lib/windows_x86_64/litert-lm.dll
-            lib/windows_x86_64/litert-lm.lib
+            windows_x86_64_litert-lm.dll
+            windows_x86_64_litert-lm.lib
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
