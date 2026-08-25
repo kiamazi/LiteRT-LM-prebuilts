@@ -14,15 +14,17 @@ version — which bundles the shared libraries for every supported platform
 together — extracts each one, and re-uploads them as separate release
 assets:
 
-| Asset                                | Platform      |
-| ------------------------------------- | ------------- |
-| `linux_x86_64_liblitert-lm.so`        | Linux x86_64  |
-| `linux_arm64_liblitert-lm.so`         | Linux ARM64   |
-| `macos_arm64_liblitert-lm.dylib`      | macOS ARM64   |
-| `windows_x86_64_litert-lm.dll`        | Windows x86_64|
-| `windows_x86_64_litert-lm.lib`        | Windows x86_64|
-| `android_arm64_liblitert-lm.so`       | android ARM64 |
-| `android_x86_64_liblitert-lm.so`      | android x86_64|
+| Asset                          | Platform / purpose            |
+| ------------------------------- | ------------------------------ |
+| `engine.h`                      | C API header                   |
+| `conversation.h`                | C API header                   |
+| `android_arm64_liblitert-lm.so` | Android ARM64                  |
+| `android_x86_64_liblitert-lm.so`| Android x86_64                 |
+| `linux_arm64_liblitert-lm.so`   | Linux ARM64                    |
+| `linux_x86_64_liblitert-lm.so`  | Linux x86_64                   |
+| `liblitert-lm.dylib`            | macOS (universal)              |
+| `windows_x86_64_litert-lm.dll`  | Windows x86_64 (runtime)       |
+| `windows_x86_64_litert-lm.lib`  | Windows x86_64 (import library)|
 
 
 ## Why this exists
