@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       litert_version:
-        description: 'LiteRT version (e.g., v0.16.0)'
+        description: 'LiteRT-LM C API shared library prebuilts'
         required: true
-        default: 'v0.16.0'
+        default: 'v0.19.1'
 
 permissions:
   contents: write
@@ -20,8 +20,8 @@ jobs:
 
       - name: Download LiteRT-LM zip
         run: |
-          wget https://github.com/google-ai-edge/LiteRT-LM/releases/download/${{ github.event.inputs.litert_version }}/litert_lm_c_api-0.1.0.zip
-          unzip -q litert_lm_c_api-0.1.0.zip
+          wget https://github.com/google-ai-edge/LiteRT-LM/releases/download/${{ github.event.inputs.litert_version }}/litert_lm_c_api-1.0.0.zip
+          unzip -q litert_lm_c_api-1.0.0.zip
 
       - name: Debug - List extracted files
         run: |
@@ -29,47 +29,67 @@ jobs:
           ls -la
           echo ""
           echo "=== All extracted files ==="
-          find . -type f \( -name "*.so" -o -name "*.dylib" -o -name "*.dll" -o -name "*.lib" -o -name "*.h" \)
+          find . -type f \( -name "*.so" -o -name "*.dylib" -o -name "*.dll" -o -name "*.lib" \)
           echo ""
           echo "=== lib directory structure ==="
           tree lib || find lib -type f
 
       - name: Rename files for clarity
         run: |
+          set -euo pipefail
           echo "=== Renaming .so files ==="
           mv lib/linux_arm64/liblitert-lm.so linux_arm64_liblitert-lm.so
           mv lib/linux_x86_64/liblitert-lm.so linux_x86_64_liblitert-lm.so
           mv lib/android_arm64/liblitert-lm.so android_arm64_liblitert-lm.so
           mv lib/android_x86_64/liblitert-lm.so android_x86_64_liblitert-lm.so
           echo ""
+          echo "=== Moving macOS dylib (keeps its asset name) ==="
+          mv lib/macos_arm64/liblitert-lm.dylib liblitert-lm.dylib
+          echo ""
           echo "=== Renaming Windows files ==="
           mv lib/windows_x86_64/bin/litert-lm.dll windows_x86_64_litert-lm.dll
           mv lib/windows_x86_64/lib/litert-lm.lib windows_x86_64_litert-lm.lib
           echo ""
           echo "=== Files after rename ==="
-          ls -lh *.so *.dll *.lib 2>/dev/null || true
+          ls -lh *.so *.dylib *.dll *.lib
+
+      - name: Generate checksums.json
+        run: |
+          set -euo pipefail
+          sha256sum \
+            linux_arm64_liblitert-lm.so \
+            linux_x86_64_liblitert-lm.so \
+            android_arm64_liblitert-lm.so \
+            android_x86_64_liblitert-lm.so \
+            liblitert-lm.dylib \
+            windows_x86_64_litert-lm.dll \
+            windows_x86_64_litert-lm.lib \
+          | jq -R -s '
+              split("\n")
+              | map(select(length > 0) | split("  ") | {(.[1]): .[0]})
+              | add
+            ' > checksums.json
+          echo "=== checksums.json ==="
+          cat checksums.json
+          jq -e 'length == 7' checksums.json > /dev/null
 
       - name: Debug - Verify files before upload
         run: |
           echo "=== Files to be uploaded ==="
-          find . -maxdepth 1 -type f \( -name "*.so" -o -name "*.dylib" -o -name "*.dll" -o -name "*.lib" \) -exec ls -lh {} \;
-          echo ""
-          echo "=== Headers to be uploaded ==="
-          find include -type f -name "*.h" -exec ls -lh {} \;
+          find . -maxdepth 1 -type f \( -name "*.so" -o -name "*.dylib" -o -name "*.dll" -o -name "*.lib" -o -name "checksums.json" \) -exec ls -lh {} \;
 
       - name: Create release and upload files
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.event.inputs.litert_version }}
           files: |
-            include/conversation.h
-            include/engine.h
             linux_arm64_liblitert-lm.so
             linux_x86_64_liblitert-lm.so
             android_arm64_liblitert-lm.so
             android_x86_64_liblitert-lm.so
-            lib/macos_arm64/liblitert-lm.dylib
+            liblitert-lm.dylib
             windows_x86_64_litert-lm.dll
             windows_x86_64_litert-lm.lib
+            checksums.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

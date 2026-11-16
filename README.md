@@ -8,16 +8,14 @@ the one file it needs for its target — not Google's single all-platforms
 
 ## What's here
 
-Each release tag (e.g. `v0.16.0`) matches a LiteRT-LM version. A GitHub
+Each release tag (e.g. `v0.19.1`) matches a LiteRT-LM version. A GitHub
 Actions workflow downloads Google's official release `.zip` for that
 version — which bundles the shared libraries for every supported platform
 together — extracts each one, and re-uploads them as separate release
 assets:
 
-| Asset                          | Platform / purpose            |
+| Asset                           | Platform / purpose             |
 | ------------------------------- | ------------------------------ |
-| `engine.h`                      | C API header                   |
-| `conversation.h`                | C API header                   |
 | `android_arm64_liblitert-lm.so` | Android ARM64                  |
 | `android_x86_64_liblitert-lm.so`| Android x86_64                 |
 | `linux_arm64_liblitert-lm.so`   | Linux ARM64                    |
